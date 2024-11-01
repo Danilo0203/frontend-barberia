@@ -2,64 +2,82 @@
 
 import { useCalendarioStore } from "@/store/servicios/useCalendarioStore";
 import { useEffect, useState } from "react";
-import { format, parse, isWithinInterval } from "date-fns";
+import { format, isBefore, isAfter } from "date-fns";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { es } from "date-fns/locale";
+
 export const CalendarioCita = () => {
-  const calendario = useCalendarioStore((state) => state.calendario);
+  const [calendario] = useCalendarioStore((state) => state.calendario);
   const getCalendario = useCalendarioStore((state) => state.getCalendario);
   useEffect(() => {
-    getCalendario("tjyep661z5arkq034sq8h9yv");
+    getCalendario("wcg5bbpy0twmjtnk6y3zs14v");
   }, []);
 
-  // const [selectedDate, setSelectedDate] = useState(null);
-  // const [selectedHour, setSelectedHour] = useState("");
+  const [date, setDate] = useState<Date | undefined>(undefined);
+  const [selectedHour, setSelectedHour] = useState<string | undefined>(undefined);
 
-  // const diasTrabajo = calendario.horarios.dias_trabajos[0];
-  // const fechaInicio = parse(diasTrabajo.fecha_inicio, "yyyy-MM-dd", new Date());
-  // const fechaFinal = parse(diasTrabajo.fecha_final, "yyyy-MM-dd", new Date());
+  // Asumimos que usamos el primer barbero del array
+  const barberoData = calendario?.barbero;
+  const diasTrabajo = barberoData?.dias_trabajos;
+  const fechaInicio = diasTrabajo?.[0]?.fecha_inicio;
+  const fechaFinal = diasTrabajo?.[0]?.fecha_final;
 
-  // const isDateInRange = (date: any) => {
-  //   return isWithinInterval(date, { start: fechaInicio, end: fechaFinal });
-  // };
+  const isDateUnavailable = (date: Date) => {
+    return isBefore(date, fechaInicio) || isAfter(date, fechaFinal);
+  };
 
-  // const horasTrabajo = calendario.horarios.horas_trabajos.map((hora) => ({
-  //   id: hora.id,
-  //   hora: format(parse(hora.hora_inicio, "HH:mm:ss", new Date()), "HH:mm"),
-  // }));
+  const handleSelect = (selectedDate: Date | undefined) => {
+    setDate(selectedDate);
+    setSelectedHour(undefined);
+  };
+
+  const handleReserva = () => {
+    if (date && selectedHour) {
+      alert(`Reserva confirmada para el ${format(date, "dd 'de' MMMM, yyyy", { locale: es })} a las ${selectedHour}`);
+    }
+  };
+
   return (
-    <div className="w-full max-w-md mx-auto p-6 space-y-6">
-      {JSON.stringify(calendario[0].horarios.horas_trabajos[0], null, 2)}
-
-      {/* <h2 className="text-2xl font-bold text-center">Selecciona una Fecha y Hora</h2>
-      <Calendar
-        mode="single"
-        selected={selectedDate}
-        onSelect={setSelectedDate}
-        disabled={(date) => !isDateInRange(date)}
-        locale={es}
-      />
-      {selectedDate && (
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">
-            Horas disponibles para {format(selectedDate, "dd 'de' MMMM, yyyy", { locale: es })}
-          </h3>
-          <RadioGroup value={selectedHour} onValueChange={setSelectedHour}>
-            {horasTrabajo.map((hora) => (
-              <div key={hora.id} className="flex items-center space-x-2">
-                <RadioGroupItem value={hora.hora} id={`hora-${hora.id}`} />
-                <Label htmlFor={`hora-${hora.id}`}>{hora.hora}</Label>
-              </div>
-            ))}
-          </RadioGroup>
-        </div>
-      )}
-      {selectedDate && selectedHour && (
-        <p className="text-center font-semibold">
-          Cita seleccionada: {format(selectedDate, "dd/MM/yyyy")} a las {selectedHour}
-        </p>
-      )} */}
-    </div>
+    <Card className="w-full max-w-md mx-auto">
+      <CardHeader>
+        <CardTitle>Calendario del Barbero</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Calendar
+          mode="single"
+          selected={date}
+          onSelect={handleSelect}
+          disabled={isDateUnavailable}
+          locale={es}
+          fromDate={fechaInicio}
+          toDate={fechaFinal}
+          className="rounded-md border shadow"
+        />
+        {date && (
+          <div className="mt-4">
+            <h3 className="font-semibold mb-2">
+              Horarios disponibles para {format(date, "dd 'de' MMMM, yyyy", { locale: es })}:
+            </h3>
+            <RadioGroup value={selectedHour} onValueChange={setSelectedHour}>
+              {barberoData.horas_trabajos.map((hora) => (
+                <div key={hora.id} className="flex items-center space-x-2">
+                  <RadioGroupItem value={hora.hora_inicio} id={`hora-${hora.id}`} />
+                  <Label htmlFor={`hora-${hora.id}`}>{hora.hora_inicio}</Label>
+                </div>
+              ))}
+            </RadioGroup>
+            {selectedHour && (
+              <Button onClick={handleReserva} className="mt-4 w-full">
+                Reservar
+              </Button>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };

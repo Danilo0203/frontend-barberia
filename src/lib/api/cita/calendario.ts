@@ -1,12 +1,11 @@
-import { ServicioData } from "@/types/servicios.type";
-import api from "../axios";
+import api from "@/lib/api/axios";
 import qs from "qs";
 import { CalendarioCitasProps, Horarios } from "@/types/calendario.types";
 
 export const getCalendario = async (
   barberoId: string
 ): Promise<{
-  data: CalendarioCitasProps[];
+  data: Horarios[];
   meta: any;
   message?: string;
 }> => {
@@ -37,20 +36,7 @@ export const getCalendario = async (
     const response = await api.get(`/citas?${query}`);
     const { data, meta } = response.data;
 
-    const calendario = data.map((cita: Horarios) => {
-      return {
-        id: cita.id,
-        documentId: cita.documentId,
-        horarios: {
-          id: cita.id,
-          documentId: cita.documentId,
-          dias_trabajos: cita.dias_trabajos,
-          horas_trabajos: cita.horas_trabajos,
-        },
-      };
-    });
-
-    return { data: calendario, meta };
+    return { data, meta };
   } catch {
     return { data: [], meta: {}, message: "Error al obtener calendario" };
   }

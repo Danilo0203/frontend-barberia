@@ -38,7 +38,7 @@ export const ServiciosCitas = () => {
                     <RadioGroupItem value={tipoServicio.id.toString()} id={`servicio-${tipoServicio.id}`} />
                     <Label htmlFor={`servicio-${tipoServicio.id}`} className="flex flex-col">
                       <span>{tipoServicio.tipo}</span>
-                      <span className="text-sm text-gray-500">
+                      <span className="text-xs text-gray-500">
                         {formatQuetzales(tipoServicio.precio)} - {minutos(tipoServicio.tiempo.toString())} minutos
                       </span>
                     </Label>

@@ -1,9 +1,9 @@
 import { getCalendario } from "@/lib/api/cita/calendario";
-import { CalendarioCitasProps } from "@/types/calendario.types";
+import { CalendarioCitasProps, Horarios } from "@/types/calendario.types";
 import { create } from "zustand";
 
 interface CalendarioStore {
-  calendario: CalendarioCitasProps[];
+  calendario: Horarios[];
   loading: boolean;
   error: boolean;
   getCalendario: (id: string) => Promise<void>;
