@@ -17,7 +17,7 @@ export const Hero = () => {
             de corte, arreglo y peinado de Juanes Barber&apos;s, diseñados para
             elevar tu apariencia.
           </p>
-          <ModalAgendarCita />
+          <ModalAgendarCita></ModalAgendarCita>
         </div>
 
         <div>
