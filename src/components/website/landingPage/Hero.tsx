@@ -1,7 +1,6 @@
-import { Button } from "@/components/ui/button";
 import SectionLayout from "../SectionLayout";
-import Link from "next/link";
 import Image from "next/image";
+import { ModalAgendarCita } from "../agendar-cita/ModalAgendarCita";
 
 export const Hero = () => {
   return (
@@ -18,11 +17,7 @@ export const Hero = () => {
             de corte, arreglo y peinado de Juanes Barber&apos;s, diseñados para
             elevar tu apariencia.
           </p>
-          <Button variant="default" asChild>
-            <Link href="/agendar-cita">
-              <span className="text-sm font-medium">Agendar Cita</span>
-            </Link>
-          </Button>
+          <ModalAgendarCita />
         </div>
 
         <div>
