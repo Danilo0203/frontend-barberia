@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { montserrat } from "@/config/fonts";
 import { ThemeProvider } from "next-themes";
+import Providers from "@/Providers";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -24,8 +25,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
-          {modal}
+          <Providers>
+            {children}
+            {modal}
+          </Providers>
         </ThemeProvider>
       </body>
     </html>

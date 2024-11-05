@@ -8,10 +8,9 @@ import { auth } from "../../auth";
 
 export default async function Home() {
   const session = await auth();
-  console.log(session);
   return (
     <main className="flex min-h-dvh flex-grow flex-col dark:bg-[#1B1C1E]">
-      <NavbarHome />
+      <NavbarHome profilePicture={session?.user?.image || ""} />
       <Hero />
       <Servicios />
       <Productos />
