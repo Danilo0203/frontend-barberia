@@ -1,19 +1,25 @@
 "use client";
 
 import { useCalendarioStore } from "@/store/servicios/useCalendarioStore";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { format, isBefore, isAfter } from "date-fns";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
 import { es } from "date-fns/locale";
 import { useCitaStore } from "@/store/servicios/useCitaStore";
+import { Clock } from "lucide-react";
+import { TypographySmall } from "@/components/ui/TypographySmall";
+import { TypographyH3 } from "@/components/ui/TypographyH3";
+import { TypographyH4 } from "../../ui/TypographyH4";
+import { TypographyMuted } from "@/components/ui/TypographyMuted";
 
 export const CalendarioCita = () => {
   const calendario = useCalendarioStore((state) => state.calendario);
   const loading = useCalendarioStore((state) => state.loading);
   const error = useCalendarioStore((state) => state.error);
   const getCalendario = useCalendarioStore((state) => state.getCalendario);
+  console.log(calendario);
   const barberoSeleccionado = useCitaStore(
     (state) => state.barberoSeleccionado,
   );
@@ -55,13 +61,8 @@ export const CalendarioCita = () => {
     return <p>No hay disponibilidad para este barbero.</p>;
   }
 
-  const barberoData = calendario.barbero;
-  if (!barberoData) {
-    return <p>No hay datos del barbero.</p>;
-  }
-
-  const diasTrabajo = barberoData.dias_trabajos;
-  const horasTrabajo = barberoData.horas_trabajos;
+  const diasTrabajo = calendario.dias_trabajos;
+  const horasTrabajo = calendario.horas_trabajos;
 
   if (!diasTrabajo || !horasTrabajo) {
     return <p>No hay horarios disponibles para este barbero.</p>;
@@ -79,6 +80,25 @@ export const CalendarioCita = () => {
     return isBefore(date, fechaInicio) || isAfter(date, fechaFinal);
   };
 
+  const formatoHorasDiponibles = horasTrabajo.map((hora) => {
+    const [hours, minutes] = hora.hora_inicio.split(":");
+    const date = new Date();
+    date.setHours(parseInt(hours, 10));
+    date.setMinutes(parseInt(minutes, 10));
+    const formateo = format(date, "h:mm a");
+    return {
+      id: hora.id,
+      hora: formateo,
+      date: date,
+    };
+  });
+  const horasManana = formatoHorasDiponibles.filter(
+    (hora) => hora.date.getHours() < 12,
+  );
+  const horasTarde = formatoHorasDiponibles.filter(
+    (hora) => hora.date.getHours() >= 12,
+  );
+
   return (
     <>
       <Calendar
@@ -89,7 +109,6 @@ export const CalendarioCita = () => {
         locale={es}
         fromDate={fechaInicio}
         toDate={fechaFinal}
-        className="w-full"
       />
       {fechaSeleccionada && (
         <div className="mt-4">
@@ -101,15 +120,54 @@ export const CalendarioCita = () => {
             value={horaSeleccionada || undefined}
             onValueChange={handleSelectHour}
           >
-            {horasTrabajo.map((hora) => (
-              <div key={hora.id} className="flex items-center space-x-2">
-                <RadioGroupItem
-                  value={hora.hora_inicio}
-                  id={`hora-${hora.id}`}
-                />
-                <Label htmlFor={`hora-${hora.id}`}>{hora.hora_inicio}</Label>
+            <div className="grid grid-cols-2 gap-4">
+              {/* Columna de la Mañana */}
+              <div className="flex flex-col gap-4">
+                <TypographyMuted text="Mañana" />
+                {horasManana.length > 0 ? (
+                  horasManana.map((hora) => (
+                    <div key={hora.id} className="flex items-center space-x-2">
+                      <RadioGroupItem
+                        value={hora.hora}
+                        id={`hora-${hora.id}`}
+                        className="flex items-center space-x-2"
+                      />
+                      <Label htmlFor={`hora-${hora.id}`}>
+                        <TypographySmall text={hora.hora} />
+                      </Label>
+                    </div>
+                  ))
+                ) : (
+                  <TypographySmall
+                    text="No hay horarios disponibles"
+                    className="text-xs leading-none text-muted-foreground"
+                  />
+                )}
               </div>
-            ))}
+              {/* Columna de la Tarde */}
+              <div>
+                <TypographyMuted text="Tarde" />
+                {horasTarde.length > 0 ? (
+                  horasTarde.map((hora) => (
+                    <div key={hora.id} className="flex items-center space-x-2">
+                      <RadioGroupItem
+                        value={hora.hora}
+                        id={`hora-${hora.id}`}
+                        className="flex items-center space-x-2"
+                      />
+                      <Label htmlFor={`hora-${hora.id}`}>
+                        <TypographySmall text={hora.hora} />
+                      </Label>
+                    </div>
+                  ))
+                ) : (
+                  <TypographySmall
+                    text="No hay horarios disponibles"
+                    className="text-xs leading-none text-muted-foreground"
+                  />
+                )}
+              </div>
+            </div>
           </RadioGroup>
         </div>
       )}

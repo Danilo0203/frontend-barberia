@@ -1,9 +1,9 @@
 import api from "@/lib/api/axios";
 import qs from "qs";
-import { CalendarioCitasProps, Horarios } from "@/types/calendario.types";
+import { Horarios } from "@/types/calendario.types";
 
 export const getCalendario = async (
-  barberoId: string
+  barberoId: string,
 ): Promise<{
   data: Horarios[];
   meta: any;
@@ -11,29 +11,24 @@ export const getCalendario = async (
 }> => {
   const query = qs.stringify(
     {
-      fields: ["id", "estado"],
+      fields: ["id", "estado", "documentId"],
       filters: {
-        barbero: { documentId: barberoId },
+        documentId: barberoId,
       },
       populate: {
-        barbero: {
-          fields: ["id", "documentId"],
-          populate: {
-            dias_trabajos: {
-              fields: ["fecha_inicio", "fecha_final"], // solo los campos específicos
-            },
-            horas_trabajos: {
-              fields: ["hora_inicio"], // campo específico para horas_trabajos
-            },
-          },
+        dias_trabajos: {
+          fields: ["id", "fecha_inicio", "fecha_final"],
+        },
+        horas_trabajos: {
+          fields: ["id", "hora_inicio"],
         },
       },
     },
-    { encodeValuesOnly: true }
+    { encodeValuesOnly: true },
   );
 
   try {
-    const response = await api.get(`/citas?${query}`);
+    const response = await api.get(`/barberos?${query}`);
     const { data, meta } = response.data;
 
     return { data, meta };

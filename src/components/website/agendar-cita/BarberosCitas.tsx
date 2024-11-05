@@ -21,6 +21,9 @@ export const BarberosCitas = () => {
   useEffect(() => {
     getBarberos();
   }, []);
+
+  console.log(barberos);
+
   return (
     <RadioGroup
       value={barberoSeleccionado ? barberoSeleccionado.documentId : "1"}
@@ -65,9 +68,9 @@ export const BarberosCitas = () => {
             </Avatar>
             <div className="flex flex-col gap-2">
               <span>{barbero.usuario.nombres}</span>
-              <span className="capitalize">
+              {/* <span className="capitalize text-muted-foreground">
                 {barbero.usuario.rol.nombre.toLowerCase()}
-              </span>
+              </span> */}
             </div>
           </Label>
         </div>

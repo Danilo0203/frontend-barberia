@@ -7,14 +7,13 @@ export interface DataBarbero {
   id: number;
   documentId: string;
   estado: boolean;
-  usuario: Usuario;
+  users_permissions_user: Usuario;
 }
 
 export interface Usuario {
   id: number;
   documentId: string;
-  nombres: string;
-  rol: Rol;
+  username: string;
 }
 
 export interface Rol {

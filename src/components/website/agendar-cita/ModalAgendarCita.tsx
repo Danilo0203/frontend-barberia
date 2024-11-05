@@ -14,12 +14,14 @@ import { ServiciosCitas } from "./ServiciosCitas";
 import { BarberosCitas } from "./BarberosCitas";
 import { CalendarioCita } from "./CalendarioCita";
 import { useCitaStore } from "@/store/servicios/useCitaStore";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { TypographySmall } from "@/components/ui/TypographySmall";
-import { Clock, Clock10Icon, ShoppingBag, UserCheck } from "lucide-react";
+import { Clock, ShoppingBag, UserCheck } from "lucide-react";
+import { formatQuetzales, minutos } from "@/lib/utils";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 
 export function ModalAgendarCita() {
   const [pasoActual, setPasoActual] = useState(0);
@@ -114,26 +116,12 @@ export function ModalAgendarCita() {
       }
     }
   };
+
   const pasoAnterior = () => {
     if (pasoActual > 0) {
       setPasoActual(pasoActual - 1);
       setErrorMessage(null);
     }
-  };
-
-  const formatQuetzales = (precio: string | number | bigint) => {
-    if (!precio) return 0;
-    const precioNumerico = typeof precio === "string" ? Number(precio) : precio;
-    return new Intl.NumberFormat("es-GT", {
-      style: "currency",
-      currency: "GTQ",
-    }).format(precioNumerico);
-  };
-
-  const minutos = (tiempo: string) => {
-    if (!tiempo) return 0;
-    const [horas, minutos] = tiempo?.split(":").map(Number);
-    return horas * 60 + minutos;
   };
 
   return (
@@ -143,7 +131,7 @@ export function ModalAgendarCita() {
           <span className="text-sm font-medium">Agendar Cita</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="flex h-full flex-col sm:max-w-[800px]">
+      <DialogContent className="flex h-full flex-col sm:max-h-[80vh] sm:max-w-[800px]">
         <DialogHeader>
           <DialogTitle>{pasos[pasoActual].title}</DialogTitle>
           <DialogDescription>{pasos[pasoActual].description}</DialogDescription>
@@ -155,65 +143,77 @@ export function ModalAgendarCita() {
           </Alert>
         )}
 
-        <div className="flex flex-grow flex-col-reverse items-start justify-start gap-8 px-4 py-1 md:flex-row">
-          <div className="flex-1">{pasos[pasoActual].contenido}</div>
-          <div className="h-full border p-4 md:flex-1">
-            <h2 className="text-lg font-semibold">Resumen de tu selección:</h2>
-            {serviciosSeleccionados && serviciosSeleccionados.length > 0 && (
-              <div className="mt-2">
-                <ul className="list-disc space-y-2">
-                  {serviciosSeleccionados.map((servicio) => (
-                    <li
-                      key={servicio.id}
-                      className="flex list-none items-center"
-                    >
-                      <div>
-                        <p className="flex items-center">
-                          <ShoppingBag className="mr-2 size-4" />
-                          <strong>{servicio.tipo}</strong>
-                        </p>
-                        <div className="space-x-2">
-                          <TypographySmall
-                            text={formatQuetzales(servicio.precio).toString()}
-                          />
-                          <TypographySmall
-                            text={`${minutos(servicio.tiempo.toString()).toString()} min`}
-                          />
-                        </div>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            <div className="mt-4">
-              {barberoSeleccionado && (
-                <div className="flex items-center">
-                  <UserCheck className="mr-2 size-4" />
-                  <p>{barberoSeleccionado.usuario.nombres}</p>
-                </div>
-              )}
-            </div>
-            <div className="mt-4">
-              {fechaSeleccionada && horaSeleccionada && (
-                <div className="flex items-center">
-                  <div>
-                    <div className="flex items-center">
-                      <Clock className="mr-2 size-4" />
-                      <p>
-                        {format(fechaSeleccionada, "dd 'de' MMMM", {
-                          locale: es,
-                        })}
-                      </p>
-                    </div>
-                    <TypographySmall text={`Hora: ${horaSeleccionada}`} />
-                  </div>
-                </div>
-              )}
-            </div>
+        {/* Contenido Principal y Resumen */}
+        <div className="flex flex-grow overflow-hidden px-4 py-1">
+          {/* Contenido de los Pasos (Desplazable) */}
+          <div className="scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 flex-1 overflow-y-auto pr-4">
+            {pasos[pasoActual].contenido}
           </div>
+
+          {/* Resumen (Fijo) */}
+          <Card className="w-80 flex-shrink-0 border p-4">
+            <CardTitle className="text-lg">Resumen:</CardTitle>
+            <CardContent className="p-0">
+              {serviciosSeleccionados && serviciosSeleccionados.length > 0 && (
+                <div className="mt-2">
+                  <ul className="list-disc space-y-2">
+                    {serviciosSeleccionados.map((servicio) => (
+                      <li
+                        key={servicio.id}
+                        className="flex list-none items-center"
+                      >
+                        <div>
+                          <p className="flex items-center">
+                            <ShoppingBag className="mr-2 size-4" />
+                            <strong>{servicio.tipo}</strong>
+                          </p>
+                          <div className="space-x-2">
+                            <TypographySmall
+                              text={formatQuetzales(servicio.precio).toString()}
+                            />
+                            <TypographySmall
+                              text={`${minutos(servicio.tiempo.toString()).toString()} min`}
+                            />
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <div className="mt-4">
+                {barberoSeleccionado && (
+                  <div className="flex items-center">
+                    <UserCheck className="mr-2 size-4" />
+                    <p className="font-semibold">
+                      {barberoSeleccionado.usuario.nombres}
+                    </p>
+                  </div>
+                )}
+              </div>
+              <div className="mt-4">
+                {fechaSeleccionada && horaSeleccionada && (
+                  <div className="flex items-center">
+                    <div>
+                      <div className="flex items-center">
+                        <Clock className="mr-2 size-4" />
+                        <p>
+                          {format(fechaSeleccionada, "dd 'de' MMMM", {
+                            locale: es,
+                          })}
+                        </p>
+                      </div>
+                      <TypographySmall text={`Hora: ${horaSeleccionada}`} />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </div>
-        <DialogFooter>
+
+        {/* Footer con Botones (Fijo) */}
+        <DialogFooter className="flex-shrink-0">
           {pasoActual > 0 && (
             <Button type="button" variant="secondary" onClick={pasoAnterior}>
               Anterior

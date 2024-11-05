@@ -1,3 +1,12 @@
-export function TypographySmall({ text }: Readonly<{ text: string }>) {
-  return <small className="text-sm font-medium leading-none">{text}</small>;
+import { cn } from "@/lib/utils";
+
+export function TypographySmall({
+  text,
+  className,
+}: Readonly<{ text: string; className?: string }>) {
+  return (
+    <small className={cn("text-sm font-medium leading-none", className)}>
+      {text}
+    </small>
+  );
 }

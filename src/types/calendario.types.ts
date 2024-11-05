@@ -1,4 +1,4 @@
-export interface CalendarioCitasProps {
+export interface CalendarioCitas {
   data: Horarios[];
   meta: Meta;
 }
@@ -6,13 +6,8 @@ export interface CalendarioCitasProps {
 export interface Horarios {
   id: number;
   documentId: string;
-  estado: string;
-  barbero: Barbero;
-}
-
-export interface Barbero {
-  id: number;
-  documentId: string;
+  estado: boolean;
+  usuario: Usuario;
   dias_trabajos: DiasTrabajo[];
   horas_trabajos: HorasTrabajo[];
 }
@@ -28,6 +23,19 @@ export interface HorasTrabajo {
   id: number;
   documentId: string;
   hora_inicio: string;
+}
+
+export interface Usuario {
+  id: number;
+  documentId: string;
+  nombres: string;
+  rol: Rol;
+}
+
+export interface Rol {
+  id: number;
+  documentId: string;
+  nombre: string;
 }
 
 export interface Meta {

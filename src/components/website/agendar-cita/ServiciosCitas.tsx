@@ -12,6 +12,7 @@ import { useServiciosStore } from "@/store/servicios/useServiciosStore";
 import { Checkbox } from "@/components/ui/checkbox";
 
 import { useEffect } from "react";
+import { formatQuetzales, minutos } from "@/lib/utils";
 
 export const ServiciosCitas = () => {
   const servicios = useServiciosStore((state) => state.servicios);
@@ -30,18 +31,7 @@ export const ServiciosCitas = () => {
   useEffect(() => {
     getServicios();
   }, []);
-  const minutos = (tiempo: string) => {
-    if (!tiempo) return 0; // Devuelve 0 si tiempo es undefined o una cadena vacía
-    const [horas, minutos] = tiempo?.split(":").map(Number);
-    return horas * 60 + minutos;
-  };
-  const formatQuetzales = (precio: number) => {
-    if (!precio) return 0; // Devuelve 0 si precio es undefined o null
-    return new Intl.NumberFormat("es-GT", {
-      style: "currency",
-      currency: "GTQ",
-    }).format(precio);
-  };
+
   return (
     <Accordion type="multiple" className="w-full">
       {servicios.map((servicio) => (
