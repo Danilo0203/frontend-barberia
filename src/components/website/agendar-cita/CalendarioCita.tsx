@@ -8,10 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
 import { es } from "date-fns/locale";
 import { useCitaStore } from "@/store/servicios/useCitaStore";
-import { Clock } from "lucide-react";
 import { TypographySmall } from "@/components/ui/TypographySmall";
-import { TypographyH3 } from "@/components/ui/TypographyH3";
-import { TypographyH4 } from "../../ui/TypographyH4";
 import { TypographyMuted } from "@/components/ui/TypographyMuted";
 
 export const CalendarioCita = () => {
@@ -92,9 +89,11 @@ export const CalendarioCita = () => {
       date: date,
     };
   });
+
   const horasManana = formatoHorasDiponibles.filter(
     (hora) => hora.date.getHours() < 12,
   );
+
   const horasTarde = formatoHorasDiponibles.filter(
     (hora) => hora.date.getHours() >= 12,
   );
@@ -145,7 +144,7 @@ export const CalendarioCita = () => {
                 )}
               </div>
               {/* Columna de la Tarde */}
-              <div>
+              <div className="flex flex-col gap-4">
                 <TypographyMuted text="Tarde" />
                 {horasTarde.length > 0 ? (
                   horasTarde.map((hora) => (

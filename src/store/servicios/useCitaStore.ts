@@ -17,11 +17,6 @@ interface Barbero {
     id: number;
     documentId: string;
     nombres: string;
-    rol: {
-      id: number;
-      documentId: string;
-      nombre: string;
-    };
   };
 }
 
@@ -35,6 +30,7 @@ interface CitaStore {
   setFechaSeleccionada: (fecha: Date | null) => void;
   horaSeleccionada: string | null;
   setHoraSeleccionada: (hora: string | null) => void;
+  reset: () => void; // Add this line
 }
 
 export const useCitaStore = create<CitaStore>()(
@@ -58,6 +54,14 @@ export const useCitaStore = create<CitaStore>()(
       setFechaSeleccionada: (fecha) => set({ fechaSeleccionada: fecha }),
       horaSeleccionada: null,
       setHoraSeleccionada: (hora) => set({ horaSeleccionada: hora }),
+      reset: () =>
+        // Add this function
+        set({
+          serviciosSeleccionados: [],
+          barberoSeleccionado: null,
+          fechaSeleccionada: null,
+          horaSeleccionada: null,
+        }),
     }),
     {
       name: "cita-storage",

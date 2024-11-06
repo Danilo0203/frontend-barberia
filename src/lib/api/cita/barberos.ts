@@ -19,20 +19,15 @@ export const getBarberos = async () => {
     const response = await api.get(`/barberos?${query}`);
     const { data } = response.data;
     const barberos = data.map(
-      ({
-        id,
-        documentId,
-        estado,
-        users_permissions_user: usuario,
-      }: DataBarbero) => {
+      ({ id, documentId, estado, users_permissions_user }: DataBarbero) => {
         return {
           id,
           documentId,
           estado,
           usuario: {
-            id: usuario.id,
-            documentId: usuario.documentId,
-            nombres: usuario.username,
+            id: users_permissions_user.id,
+            documentId: users_permissions_user.documentId,
+            nombres: users_permissions_user.username,
           },
         };
       },

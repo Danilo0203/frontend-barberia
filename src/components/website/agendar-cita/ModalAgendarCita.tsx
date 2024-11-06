@@ -22,10 +22,14 @@ import { TypographySmall } from "@/components/ui/TypographySmall";
 import { Clock, ShoppingBag, UserCheck } from "lucide-react";
 import { formatQuetzales, minutos } from "@/lib/utils";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import { useSession } from "next-auth/react";
 
 export function ModalAgendarCita() {
   const [pasoActual, setPasoActual] = useState(0);
-  const [errorMessage, setErrorMessage] = useState(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+  const { data: session } = useSession();
+  console.log(session);
 
   const serviciosSeleccionados = useCitaStore(
     (state) => state.serviciosSeleccionados,
@@ -35,6 +39,7 @@ export function ModalAgendarCita() {
   );
   const fechaSeleccionada = useCitaStore((state) => state.fechaSeleccionada);
   const horaSeleccionada = useCitaStore((state) => state.horaSeleccionada);
+  const resetStore = useCitaStore((state) => state.reset); // Get the reset function
 
   useEffect(() => {
     if (
@@ -61,71 +66,79 @@ export function ModalAgendarCita() {
       description: "Elige un horario para el cual deseas agendar una cita.",
       contenido: <CalendarioCita />,
     },
-    {
-      title: "Confirmación",
-      description: "Revisa y confirma tu cita.",
-      contenido: (
-        <div>
-          <p>Resumen de tu cita:</p>
-          {/* Aquí puedes mostrar un resumen de los datos ingresados */}
-        </div>
-      ),
-    },
   ];
 
   const siguientePaso = () => {
     if (pasoActual < pasos.length - 1) {
       // Validaciones basadas en el paso actual
-      if (pasoActual < pasos.length - 1) {
-        // Validaciones basadas en el paso actual
-        if (pasoActual === 0) {
-          // Paso 0: Validar que al menos un servicio esté seleccionado
-          if (serviciosSeleccionados.length === 0) {
-            setErrorMessage(
-              "Por favor, selecciona al menos un servicio." as any,
-            );
-          } else {
-            setPasoActual(pasoActual + 1);
-            setErrorMessage(null);
-          }
-        } else if (pasoActual === 1) {
-          // Paso 1: Puedes agregar validación si es necesario
+      if (pasoActual === 0) {
+        // Paso 0: Validar que al menos un servicio esté seleccionado
+        if (serviciosSeleccionados.length === 0) {
+          setErrorMessage("Por favor, selecciona al menos un servicio.");
+        } else {
           setPasoActual(pasoActual + 1);
           setErrorMessage(null);
-        } else if (pasoActual === 2) {
-          // Paso 2: Validar que se haya seleccionado fecha y hora
-          if (!fechaSeleccionada || !horaSeleccionada) {
-            setErrorMessage("Por favor, selecciona una fecha y hora." as any);
-          } else {
-            setPasoActual(pasoActual + 1);
-            setErrorMessage(null);
-          }
         }
-      } else {
-        // Lógica para agendar la cita en el último paso
-        const servicios = useCitaStore.getState().serviciosSeleccionados;
-        const barbero = useCitaStore.getState().barberoSeleccionado;
-        const fecha = useCitaStore.getState().fechaSeleccionada;
-        const hora = useCitaStore.getState().horaSeleccionada;
-
-        console.log("Cita agendada", { servicios, barbero, fecha, hora });
-
-        // Reiniciar el proceso o cerrar el modal
-        setPasoActual(0);
+      } else if (pasoActual === 1) {
+        // Paso 1: Puedes agregar validación si es necesario
+        setPasoActual(pasoActual + 1);
         setErrorMessage(null);
+      } else if (pasoActual === 2) {
+        // Paso 2: Validar que se haya seleccionado fecha y hora
+        if (!fechaSeleccionada || !horaSeleccionada) {
+          setErrorMessage("Por favor, selecciona una fecha y hora.");
+        } else {
+          setPasoActual(pasoActual + 1);
+          setErrorMessage(null);
+        }
       }
+    } else {
+      // Lógica para agendar la cita en el último paso
+      const servicios = useCitaStore.getState().serviciosSeleccionados;
+      const barbero = useCitaStore.getState().barberoSeleccionado;
+      const fecha = useCitaStore.getState().fechaSeleccionada;
+      const hora = useCitaStore.getState().horaSeleccionada;
+
+      // Aquí puedes agregar la lógica para agendar la cita
+      // ...
+
+      // Reiniciar el proceso o cerrar el modal
+      setPasoActual(0);
+      setErrorMessage(null);
+      setOpen(false); // Close the modal after scheduling
     }
   };
 
   const pasoAnterior = () => {
     if (pasoActual > 0) {
+      // Clear the data for the current step before moving back
+      if (pasoActual === 1) {
+        // Moving from step 1 (Select Barber) to step 0 (Select Service)
+        useCitaStore.getState().setBarberoSeleccionado(null);
+      } else if (pasoActual === 2) {
+        // Moving from step 2 (Select Date/Time) to step 1 (Select Barber)
+        useCitaStore.getState().setFechaSeleccionada(null);
+        useCitaStore.getState().setHoraSeleccionada(null);
+      }
+
       setPasoActual(pasoActual - 1);
       setErrorMessage(null);
     }
   };
 
   return (
-    <Dialog>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          // Reset the store and local state when the modal is closed
+          resetStore();
+          setPasoActual(0);
+          setErrorMessage(null);
+        }
+        setOpen(isOpen);
+      }}
+    >
       <DialogTrigger asChild>
         <Button variant="default">
           <span className="text-sm font-medium">Agendar Cita</span>
@@ -172,7 +185,7 @@ export function ModalAgendarCita() {
                               text={formatQuetzales(servicio.precio).toString()}
                             />
                             <TypographySmall
-                              text={`${minutos(servicio.tiempo.toString()).toString()} min`}
+                              text={`${minutos(servicio.tiempo.toString())} min`}
                             />
                           </div>
                         </div>
