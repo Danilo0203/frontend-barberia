@@ -22,14 +22,19 @@ import { TypographySmall } from "@/components/ui/TypographySmall";
 import { Clock, ShoppingBag, UserCheck } from "lucide-react";
 import { formatQuetzales, minutos } from "@/lib/utils";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
-import { useSession } from "next-auth/react";
+// import { useSession } from "next-auth/react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export function ModalAgendarCita() {
   const [pasoActual, setPasoActual] = useState(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
-  const { data: session } = useSession();
-  console.log(session);
+  // const { data: session } = useSession();
 
   const serviciosSeleccionados = useCitaStore(
     (state) => state.serviciosSeleccionados,
@@ -39,7 +44,7 @@ export function ModalAgendarCita() {
   );
   const fechaSeleccionada = useCitaStore((state) => state.fechaSeleccionada);
   const horaSeleccionada = useCitaStore((state) => state.horaSeleccionada);
-  const resetStore = useCitaStore((state) => state.reset); // Get the reset function
+  const resetStore = useCitaStore((state) => state.reset);
 
   useEffect(() => {
     if (
@@ -131,7 +136,6 @@ export function ModalAgendarCita() {
       open={open}
       onOpenChange={(isOpen) => {
         if (!isOpen) {
-          // Reset the store and local state when the modal is closed
           resetStore();
           setPasoActual(0);
           setErrorMessage(null);
@@ -157,14 +161,14 @@ export function ModalAgendarCita() {
         )}
 
         {/* Contenido Principal y Resumen */}
-        <div className="flex flex-grow overflow-hidden px-4 py-1">
+        <div className="flex flex-grow flex-col-reverse overflow-hidden px-4 py-1 md:flex-row">
           {/* Contenido de los Pasos (Desplazable) */}
-          <div className="scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 flex-1 overflow-y-auto pr-4">
+          <div className="scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 flex-1 overflow-y-auto md:pr-4">
             {pasos[pasoActual].contenido}
           </div>
 
-          {/* Resumen (Fijo) */}
-          <Card className="w-80 flex-shrink-0 border p-4">
+          {/* Resumen desktop */}
+          <Card className="hidden w-80 flex-shrink-0 border p-4 sm:block">
             <CardTitle className="text-lg">Resumen:</CardTitle>
             <CardContent className="p-0">
               {serviciosSeleccionados && serviciosSeleccionados.length > 0 && (
@@ -223,6 +227,68 @@ export function ModalAgendarCita() {
               </div>
             </CardContent>
           </Card>
+          {/* Resumen mobile */}
+          <Accordion type="single" collapsible className="w-full sm:hidden">
+            <AccordionItem value="resumen">
+              <AccordionTrigger>Resumen</AccordionTrigger>
+              <AccordionContent>
+                {serviciosSeleccionados &&
+                  serviciosSeleccionados.length > 0 && (
+                    <div className="mt-2">
+                      <ul className="space-y-2">
+                        {serviciosSeleccionados.map((servicio) => (
+                          <li key={servicio.id} className="flex items-center">
+                            <div>
+                              <p className="flex items-center">
+                                <ShoppingBag className="mr-2 h-4 w-4" />
+                                <strong>{servicio.tipo}</strong>
+                              </p>
+                              <div className="space-x-2">
+                                <TypographySmall
+                                  text={formatQuetzales(
+                                    servicio.precio,
+                                  ).toString()}
+                                />
+                                <TypographySmall
+                                  text={`${minutos(servicio.tiempo.toString())} min`}
+                                />
+                              </div>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                <div className="mt-4">
+                  {barberoSeleccionado && (
+                    <div className="flex items-center">
+                      <UserCheck className="mr-2 h-4 w-4" />
+                      <p className="font-semibold">
+                        {barberoSeleccionado.usuario.nombres}
+                      </p>
+                    </div>
+                  )}
+                </div>
+                <div className="mt-4">
+                  {fechaSeleccionada && horaSeleccionada && (
+                    <div className="flex items-center">
+                      <div>
+                        <div className="flex items-center">
+                          <Clock className="mr-2 h-4 w-4" />
+                          <p>
+                            {format(fechaSeleccionada, "dd 'de' MMMM", {
+                              locale: es,
+                            })}
+                          </p>
+                        </div>
+                        <TypographySmall text={`Hora: ${horaSeleccionada}`} />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
 
         {/* Footer con Botones (Fijo) */}
@@ -232,7 +298,11 @@ export function ModalAgendarCita() {
               Anterior
             </Button>
           )}
-          <Button type="button" onClick={siguientePaso}>
+          <Button
+            type="button"
+            className="mb-4 md:mb-0"
+            onClick={siguientePaso}
+          >
             {pasoActual === pasos.length - 1 ? "Agendar" : "Siguiente"}
           </Button>
         </DialogFooter>
