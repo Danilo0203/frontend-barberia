@@ -26,11 +26,15 @@ import { formatQuetzales, minutos } from "../../../lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { deleteCitaCliente } from "@/lib/api/cita/clientes-cita";
+import { toast } from "@/hooks/use-toast";
+import { ToastAction } from "@/components/ui/toast";
+import ClipLoader from "react-spinners/ClipLoader";
 
 export const ModalCitasCliente = () => {
   const [isOpen, setIsOpen] = useState(false);
   const getCitas = useCitaClientesStore((state) => state.getCitasCliente);
   const data = useCitaClientesStore((state) => state.data);
+  const [loading, setLoading] = useState<number | string | null>(null);
   const { data: session } = useSession();
   useEffect(() => {
     if (!session?.user?.userId) {
@@ -39,8 +43,27 @@ export const ModalCitasCliente = () => {
     getCitas(session?.user?.userId);
   }, []);
 
-  const handleDeleteCita = (id: number) => {
-    deleteCitaCliente(id);
+  const handleDeleteCita = async (id: number | string) => {
+    setLoading(id); // Establece el estado de carga con el ID de la cita
+    try {
+      await deleteCitaCliente(id);
+      toast({
+        title: "Cita eliminada",
+        description: `Se ha eliminado la cita del cliente ${session?.user?.name}`,
+        action: <ToastAction altText="Ok">Aceptar</ToastAction>,
+      });
+      if (!session?.user?.userId) {
+        return;
+      }
+      getCitas(session?.user?.userId); // Actualiza la lista de citas
+    } catch (error) {
+      toast({
+        title: "Error al eliminar la cita",
+        description: "No se pudo eliminar la cita, inténtalo de nuevo.",
+      });
+    } finally {
+      setLoading(null); // Limpia el estado de carga
+    }
   };
 
   return (
@@ -58,79 +81,88 @@ export const ModalCitasCliente = () => {
         <ScrollArea className="h-full max-h-[60vh] pr-4">
           {data.length > 0 ? (
             <div className="grid gap-4 pb-4 md:grid-cols-2 lg:grid-cols-3">
-              {data.map(({ barbero, tipo_servicios, id, fecha, hora }) => {
-                const parsedHora = parse(hora, "HH:mm:ss", new Date());
-                const formattedHora = format(parsedHora, "hh:mm a");
-                const total = tipo_servicios.reduce(
-                  (sum, service) => sum + service.precio,
-                  0,
-                );
+              {data.map(
+                ({ barbero, tipo_servicios, id, fecha, hora, documentId }) => {
+                  const parsedHora = parse(hora, "HH:mm:ss", new Date());
+                  const formattedHora = format(parsedHora, "hh:mm a");
+                  const total = tipo_servicios.reduce(
+                    (sum, service) => sum + service.precio,
+                    0,
+                  );
 
-                return (
-                  <Card key={id} className="flex flex-col border-2">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-lg">
-                        <User className="size-5" />
-                        {barbero.users_permissions_user.username}
-                      </CardTitle>
-                      <CardDescription className="flex items-center gap-4">
-                        <span className="flex items-center gap-1">
-                          <Calendar1 className="size-4" />
-                          {format(new Date(fecha), "dd 'de' MMM", {
-                            locale: es,
-                          })}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Clock className="size-4" />
-                          {formattedHora}
-                        </span>
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex-grow space-y-4">
-                      <div>
-                        <h4 className="mb-2 font-medium">
-                          Servicios Reservados
-                        </h4>
-                        <div className="space-y-3">
-                          {tipo_servicios.map((servicio) => (
-                            <div
-                              key={servicio.id}
-                              className="flex items-start justify-between gap-4 rounded-lg bg-muted/50 p-2"
-                            >
-                              <div className="flex items-center gap-2">
-                                <Scissors className="size-4" />
-                                <span>{servicio.tipo}</span>
-                              </div>
-                              <div className="text-right text-sm text-muted-foreground">
-                                <div>{formatQuetzales(servicio.precio)}</div>
-                                <div>
-                                  {minutos(servicio.tiempo.toString())} min
+                  return (
+                    <Card key={id} className="flex flex-col border-2">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-lg">
+                          <User className="size-5" />
+                          {barbero.users_permissions_user.username}
+                        </CardTitle>
+                        <CardDescription className="flex items-center gap-4">
+                          <span className="flex items-center gap-1">
+                            <Calendar1 className="size-4" />
+                            {format(new Date(fecha), "dd 'de' MMM", {
+                              locale: es,
+                            })}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Clock className="size-4" />
+                            {formattedHora}
+                          </span>
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="flex-grow space-y-4">
+                        <div>
+                          <h4 className="mb-2 font-medium">
+                            Servicios Reservados
+                          </h4>
+                          <div className="space-y-3">
+                            {tipo_servicios.map((servicio) => (
+                              <div
+                                key={servicio.id}
+                                className="flex items-start justify-between gap-4 rounded-lg bg-muted/50 p-2"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <Scissors className="size-4" />
+                                  <span>{servicio.tipo}</span>
+                                </div>
+                                <div className="text-right text-sm text-muted-foreground">
+                                  <div>{formatQuetzales(servicio.precio)}</div>
+                                  <div>
+                                    {minutos(servicio.tiempo.toString())} min
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          ))}
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                      <Separator />
-                      <div className="flex items-center justify-between font-medium">
-                        <span>Total</span>
-                        <span>{formatQuetzales(total)}</span>
-                      </div>
-                    </CardContent>
-                    <CardFooter>
-                      <Button
-                        variant="destructive"
-                        className="ml-auto flex gap-2"
-                        size="sm"
-                        onClick={() => handleDeleteCita(id)}
-                      >
-                        <Trash2 className="size-4" />
-                        Eliminar Cita
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                );
-              })}
+                        <Separator />
+                        <div className="flex items-center justify-between font-medium">
+                          <span>Total</span>
+                          <span>{formatQuetzales(total)}</span>
+                        </div>
+                      </CardContent>
+                      <CardFooter>
+                        <Button
+                          variant="destructive"
+                          className="ml-auto flex gap-2"
+                          size="sm"
+                          onClick={() => handleDeleteCita(documentId)}
+                          disabled={loading === documentId} // Deshabilita el botón si está en estado de carga
+                        >
+                          {loading === documentId ? (
+                            <ClipLoader size={20} color="#fff" />
+                          ) : (
+                            <>
+                              <Trash2 className="size-4" />
+                              Eliminar Cita
+                            </>
+                          )}
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  );
+                },
+              )}
             </div>
           ) : (
             <div className="flex min-h-[200px] flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed">

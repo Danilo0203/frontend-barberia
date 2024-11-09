@@ -52,7 +52,7 @@ export const createCitaCliente = async (dataForm: CreateCitaClienteProps) => {
   }
 };
 
-export const deleteCitaCliente = async (id: number) => {
+export const deleteCitaCliente = async (id: number | string) => {
   try {
     const response = await api.delete(`/citas-agendadas/${id}`);
     const { data } = response.data;

@@ -29,8 +29,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { ButtonLogin } from "../ButtonLogin";
-import { IconLogin } from "../IconLogin";
+
 import { useRouter } from "next/navigation";
 import { createCitaCliente } from "@/lib/api/cita/clientes-cita";
 import { useToast } from "@/hooks/use-toast";
@@ -149,6 +148,7 @@ export function ModalAgendarCita() {
           )} a las ${horaSeleccionada}`,
           action: <ToastAction altText="Ok">Aceptar</ToastAction>,
         });
+        route.back();
       } else {
         setErrorMessage("Error al crear la cita. Inténtalo de nuevo.");
       }
