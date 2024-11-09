@@ -1,10 +1,11 @@
+import { CreateCitaClienteProps } from "@/types/cita-clientes";
 import api from "../axios";
 import qs from "qs";
 
 export const getCitasCliente = async (userId: number) => {
   const query = qs.stringify(
     {
-      fields: ["documentId"],
+      fields: ["documentId", "fecha", "hora"],
       filters: {
         usuario: {
           id: {
@@ -38,5 +39,15 @@ export const getCitasCliente = async (userId: number) => {
     return { data };
   } catch (error) {
     return { data: [], meta: {}, message: "Error al obtener servicios" };
+  }
+};
+
+export const createCitaCliente = async (dataForm: CreateCitaClienteProps) => {
+  try {
+    const response = await api.post(`/citas-agendadas`, dataForm);
+    const { data } = response.data;
+    return { data };
+  } catch (error) {
+    return { data: [], meta: {}, message: "Error al crear cita cliente" };
   }
 };

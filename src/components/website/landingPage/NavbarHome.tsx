@@ -24,6 +24,7 @@ import {
   DropdownMenuItem,
 } from "@radix-ui/react-dropdown-menu";
 import { DropdownProfile } from "./dropdownProfile";
+import { ButtonLogin } from "../ButtonLogin";
 
 const menuItems = [
   { label: "Inicio", href: "#inicio" },
@@ -182,26 +183,15 @@ export const NavbarHome = () => {
                 className="absolute bottom-0 h-0.5 bg-primary transition-all duration-300 ease-in-out"
               />
             </div>
-            <div className="ml-4">
+            <div className="mx-4">
               <ModeToggle />
             </div>
 
             {status === "authenticated" && session?.user?.image && (
-              <div className="ml-4">
-                <DropdownProfile />
-              </div>
+              <DropdownProfile />
             )}
 
-            {status === "unauthenticated" && (
-              <Button
-                variant="outline"
-                className="ml-4"
-                onClick={() => signIn("google")}
-              >
-                <LogInIcon className="h-5 w-5" />
-                <span>Iniciar Sesión</span>
-              </Button>
-            )}
+            {status === "unauthenticated" && <ButtonLogin />}
           </div>
           {/* Mobile Navigation */}
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -240,16 +230,7 @@ export const NavbarHome = () => {
                     )}
                   </Link>
                 ))}
-                {status === "unauthenticated" && (
-                  <Button
-                    variant="outline"
-                    className="ml-4 md:hidden"
-                    onClick={() => signIn("google")}
-                  >
-                    <LogInIcon className="h-5 w-5" />
-                    <span>Iniciar Sesión</span>
-                  </Button>
-                )}
+                {status === "unauthenticated" && <ButtonLogin />}
               </nav>
             </SheetContent>
           </Sheet>

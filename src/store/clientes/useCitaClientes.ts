@@ -1,8 +1,9 @@
 import { getCitasCliente } from "@/lib/api/cita/clientes-cita";
+import { DataCitaCliente } from "@/types/cita-clientes";
 import { create } from "zustand";
 
 interface CitaClientes {
-  data: any[];
+  data: DataCitaCliente[];
   loading: boolean;
   error: boolean;
   getCitasCliente: (idUser: number) => Promise<void>;

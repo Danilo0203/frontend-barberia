@@ -16,7 +16,7 @@ export const CalendarioCita = () => {
   const loading = useCalendarioStore((state) => state.loading);
   const error = useCalendarioStore((state) => state.error);
   const getCalendario = useCalendarioStore((state) => state.getCalendario);
-  console.log(calendario);
+
   const barberoSeleccionado = useCitaStore(
     (state) => state.barberoSeleccionado,
   );
