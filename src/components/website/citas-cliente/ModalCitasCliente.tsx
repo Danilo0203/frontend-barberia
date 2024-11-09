@@ -25,6 +25,7 @@ import { useEffect, useState } from "react";
 import { formatQuetzales, minutos } from "../../../lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { deleteCitaCliente } from "@/lib/api/cita/clientes-cita";
 
 export const ModalCitasCliente = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -37,6 +38,10 @@ export const ModalCitasCliente = () => {
     }
     getCitas(session?.user?.userId);
   }, []);
+
+  const handleDeleteCita = (id: number) => {
+    deleteCitaCliente(id);
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -117,6 +122,7 @@ export const ModalCitasCliente = () => {
                         variant="destructive"
                         className="ml-auto flex gap-2"
                         size="sm"
+                        onClick={() => handleDeleteCita(id)}
                       >
                         <Trash2 className="size-4" />
                         Eliminar Cita

@@ -51,3 +51,13 @@ export const createCitaCliente = async (dataForm: CreateCitaClienteProps) => {
     return { data: [], meta: {}, message: "Error al crear cita cliente" };
   }
 };
+
+export const deleteCitaCliente = async (id: number) => {
+  try {
+    const response = await api.delete(`/citas-agendadas/${id}`);
+    const { data } = response.data;
+    return { data };
+  } catch (error) {
+    return { data: [], meta: {}, message: "Error al eliminar cita cliente" };
+  }
+};
