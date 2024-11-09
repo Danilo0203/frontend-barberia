@@ -149,7 +149,7 @@ export function ModalAgendarCita() {
           )} a las ${horaSeleccionada}`,
           action: <ToastAction altText="Ok">Aceptar</ToastAction>,
         });
-        route.back();
+        route.push("/");
       } else {
         setErrorMessage("Error al crear la cita. Inténtalo de nuevo.");
       }
