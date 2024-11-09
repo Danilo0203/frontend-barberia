@@ -171,7 +171,7 @@ export function ModalAgendarCita() {
         if (isOpen) {
           route.push("/");
         } else {
-          route.back();
+          route.push("/");
         }
       }}
     >
