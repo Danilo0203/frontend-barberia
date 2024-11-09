@@ -51,6 +51,7 @@ export function ModalAgendarCita() {
   const horaSeleccionada = useCitaStore((state) => state.horaSeleccionada);
   const resetStore = useCitaStore((state) => state.reset);
   const { toast } = useToast();
+
   useEffect(() => {
     if (
       (pasoActual === 0 && serviciosSeleccionados.length > 0) ||
@@ -168,7 +169,7 @@ export function ModalAgendarCita() {
         }
         setOpen(isOpen);
         if (isOpen) {
-          route.push("/agendar-cita");
+          route.push("/");
         } else {
           route.back();
         }
@@ -202,7 +203,9 @@ export function ModalAgendarCita() {
                   variant="default"
                   className="w-full sm:w-auto"
                   onClick={() => {
-                    signIn("google");
+                    signIn("google", {
+                      redirectTo: "/",
+                    });
                   }}
                 >
                   Iniciar Sesión

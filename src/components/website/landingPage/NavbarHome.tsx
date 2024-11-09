@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LogInIcon, LogOut, Menu, User } from "lucide-react";
+import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -13,16 +13,8 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import { ModeToggle } from "@/components/website/ModeToggle";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { signIn, signOut, useSession } from "next-auth/react";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuItem,
-} from "@radix-ui/react-dropdown-menu";
+import { useSession } from "next-auth/react";
+
 import { DropdownProfile } from "./dropdownProfile";
 import { ButtonLogin } from "../ButtonLogin";
 
